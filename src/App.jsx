@@ -1,54 +1,70 @@
 import React, { useState } from "react";
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { useMsal, MsalAuthenticationTemplate } from "@azure/msal-react";
+import { InteractionType } from "@azure/msal-browser";
 import { loginRequest } from "./authConfig";
 import { PageLayout } from "./components/PageLayout";
-import { ProfileData } from "./components/ProfileData";
-import { callMsGraph } from "./graph";
+import { APIData } from "./components/APIData";
 import Button from "react-bootstrap/Button";
 import "./styles/App.css";
 
 /**
- * Renders information about the signed-in user or a button to retrieve data about the user
+ * Renders name of the signed-in user and a button to retrieve data from an API
  */
-const ProfileContent = () => {
+const AppContent = () => {
+    
     const { instance, accounts } = useMsal();
-    const [graphData, setGraphData] = useState(null);
+    const [apiData, setApiData] = useState(null);
 
-    function RequestProfileData() {
-        // Silently acquires an access token which is then attached to a request for MS Graph data
+    function CallAPI() {
+        // Silently acquires an access token which is then attached to a request for API call
         instance.acquireTokenSilent({
             ...loginRequest,
             account: accounts[0]
         }).then((response) => {
-            callMsGraph(response.accessToken).then(response => setGraphData(response));
+            console.log(response.accessToken);
+
+            fetch('{Function App API URL}', { 
+                method: 'post', 
+                headers: new Headers({
+                    'Authorization': 'Bearer ' + response.accessToken,
+                    'Accept': 'application/json'
+                })
+            })
+            .then(data => data.json())
+            .then(json => {
+                console.log(json);
+                setApiData(json);
+            });
+
+
         });
     }
 
     return (
         <>
             <h5 className="card-title">Welcome {accounts[0].name}</h5>
-            {graphData ? 
-                <ProfileData graphData={graphData} />
+            {
+                apiData ? 
+                <APIData apiData={apiData} />
                 :
-                <Button variant="secondary" onClick={RequestProfileData}>Request Profile Information</Button>
+                <div>No Data from API. Click Call API!<br/><br/></div>
             }
+            <Button variant="secondary" onClick={CallAPI}>Call API</Button>
         </>
     );
 };
 
 /**
- * If a user is authenticated the ProfileContent component above is rendered. Otherwise a message indicating a user is not authenticated is rendered.
+ * If a user is authenticated the AppContent component above is rendered. Otherwise the content is not rendered.
  */
-const MainContent = () => {    
+const MainContent = () => { 
     return (
         <div className="App">
-            <AuthenticatedTemplate>
-                <ProfileContent />
-            </AuthenticatedTemplate>
-
-            <UnauthenticatedTemplate>
-                <h5 className="card-title">Please sign-in to see your profile information.</h5>
-            </UnauthenticatedTemplate>
+            {
+                <MsalAuthenticationTemplate  interactionType={InteractionType.Redirect} authenticationRequest={loginRequest}>
+                    <AppContent />
+                </MsalAuthenticationTemplate>
+            }
         </div>
     );
 };
