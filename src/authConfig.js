@@ -12,36 +12,36 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Web App Registration Application (client) ID",
-        authority: "https://login.microsoftonline.com/{your tenant ID}", // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
-        redirectUri: "https://{your web app name}.azurewebsites.net/"
+        clientId: "b200e2b6-6cb8-4f58-ab30-66b77b77867e",
+        authority: "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47", // This is a URL (e.g. https://login.microsoftonline.com/%7Byour tenant ID})
+        redirectUri: "http://localhost:3000/"
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
-    system: {	
-        loggerOptions: {	
-            loggerCallback: (level, message, containsPii) => {	
-                if (containsPii) {		
-                    return;		
-                }		
-                switch (level) {		
-                    case LogLevel.Error:		
-                        console.error(message);		
-                        return;		
-                    case LogLevel.Info:		
-                        console.info(message);		
-                        return;		
-                    case LogLevel.Verbose:		
-                        console.debug(message);		
-                        return;		
-                    case LogLevel.Warning:		
-                        console.warn(message);		
-                        return;		
-                }	
-            }	
-        }	
+    system: {
+        loggerOptions: {
+            loggerCallback: (level, message, containsPii) => {
+                if (containsPii) {
+                    return;
+                }
+                switch (level) {
+                    case LogLevel.Error:
+                        console.error(message);
+                        return;
+                    case LogLevel.Info:
+                        console.info(message);
+                        return;
+                    case LogLevel.Verbose:
+                        console.debug(message);
+                        return;
+                    case LogLevel.Warning:
+                        console.warn(message);
+                        return;
+                }
+            }
+        }
     }
 };
 
